@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
+    <name>UBRR Payment Plugin for VirtueMart</name>
+    <creationDate>September 14 2015</creationDate>
+    <author>The VirtueMart Development Team</author>
+    <authorUrl>http://www.virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004-2015 Virtuemart Team. All rights reserved.</copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <version>3.0.9</version>
+    <description>
+    </description>
+
+    <files>
+        <filename plugin="ubrir">ubrir.php</filename>
+		<filename>result.php</filename>
+		<filename>uniteller.php</filename>
+		<filename>UbrirClass.php</filename>
+        <folder>language</folder>
+		<folder>ubrir</folder>
+		<folder>include</folder>
+		<folder>certs</folder>
+    </files>
+    <languages>
+        <language tag="en-GB">en-GB.plg_vmpayment_ubrir.ini</language>
+    </languages>
+    <vmconfig>
+    <fields name="params">
+
+    <fieldset name="basic" addfieldpath="/plugins/vmpayment/ubrir/ubrir/fields">
+         <field type="spacer" default="УБРиР" level="level1"/>
+         <field type="getubrir" level="level1"/>
+
+         <field type="spacer" default="" level="level1"/>
+         
+		 <field name="two" type="radio" default="0" label="Два процессинга">
+            <option value="0">Да</option>
+            <option value="1">Нет</option>
+         </field>   
+         <field type="vmtitle" default="Настройки для Visa" level="level1"/>
+         <field type="text" name="twpg_id" size="100" label="ID интернет-магазина для VISA"
+               default="" description=""/>
+			   <field type="text" name="twpg_sert" size="100" label="Пароль к сертификату VISA"
+               default="" />
+        
+
+        
+
+
+         <field type="vmtitle" default="Настройки для MasterCard" level="level1"/>
+         <field name="uni_id" type="text" scope="com_virtuemart" default="" label="ID интернет-магазина для MasterCard"
+               />
+		 <field name="uni_login" type="text" scope="com_virtuemart" default="" label="Логин личного кабинета MasterCard"
+               />
+		 <field name="uni_pass" type="text" scope="com_virtuemart" default="" label="Пароль интернет-магазина для MasterCard"
+              />   
+	     <field name="uni_emp" type="text" scope="com_virtuemart" default="" label="Пароль личного кабинета MasterCard"
+               />   
+			   
+         
+
+    </fieldset>
+    </fields>
+    </vmconfig>
+
+    <updateservers>
+        <!-- Note: No spaces or linebreaks allowed between the server tags -->
+        <server type="extension" name="VirtueMart plg_vmpayment_ubrir Update Site"><![CDATA[http://virtuemart.net/releases/vm3/plg_vmpayment_ubrir_update.xml]]></server>
+    </updateservers>
+
+</extension>
