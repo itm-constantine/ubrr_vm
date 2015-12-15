@@ -1,9 +1,15 @@
 <?php
+/**
+ * @package	VM payment module for Joomla!
+ * @version	1.0.0
+ * @author	itmosfera.ru
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 defined('_JEXEC') or die('Restricted access');
 
 
 if (!class_exists('vmPSPlugin')) {
-	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
+	require(JPATH_VM_PLUGINS .DIRECTORY_SEPARATOR. 'vmpsplugin.php');
 }
 
 require(dirname(__FILE__).'/UbrirClass.php');
@@ -12,6 +18,9 @@ class plgVmPaymentubrir extends vmPSPlugin {
 	const RELEASE = 'VM 3.0.9';
 	const SU_ubrirBANKING = 'su';
 
+	$result = JRequest::getVar('result');
+	$on = JRequest::getVar('on');
+	$desc = JRequest::getVar('desc');
 
 	function __construct (& $subject, $config) {
 
@@ -90,33 +99,6 @@ class plgVmPaymentubrir extends vmPSPlugin {
 		}
 	}
 
-	/*function plgVmOnProductDisplayPayment($product, &$productDisplay) {
-		return;
-		$vendorId = 1;
-		if ($this->getPluginMethods($vendorId) === 0) {
-			return FALSE;
-		}
-
-		foreach ($this->methods as $this->_currentMethod) {
-			if ($this->_currentMethod->paypalproduct == 'exp') {
-				$paypalInterface = $this->_loadPayPalInterface();
-				$product = $paypalInterface->getExpressProduct();
-				$productDisplayHtml = $this->renderByLayout('expproduct',
-					array(
-						'text' => vmText::_('VMPAYMENT_PAYPAL_EXPCHECKOUT_AVAILABALE'),
-						'img' => $product['img'],
-						'link' => $product['link'],
-						'sandbox' => $this->_currentMethod->sandbox,
-						'virtuemart_paymentmethod_id' => $this->_currentMethod->virtuemart_paymentmethod_id,
-					)
-				);
-				$productDisplay[] = $productDisplayHtml;
-
-			}
-		}
-		return TRUE;
-	}*/
-	
 
 	function sendTransactionRequest ( $cart, $order, $doRedirect = true) {
 		
@@ -131,9 +113,6 @@ class plgVmPaymentubrir extends vmPSPlugin {
 							'order_id' => $order['details']['BT']->order_number, 
 							'sert' => $method->twpg_sert,
 							'amount' => $twpg_amount,
-							/* 'approve_url' => JROUTE::_ (JURI::root () . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on=' . $order['details']['BT']->order_number . '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id . '&Itemid=' . JRequest::getInt ('Itemid')),
-							'cancel_url' => JROUTE::_ (JURI::root () . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on=' . $order['details']['BT']->order_number . '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id . '&Itemid=' . JRequest::getInt ('Itemid')),
-							'decline_url' => JROUTE::_ (JURI::root () . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on=' . $order['details']['BT']->order_number . '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id . '&Itemid=' . JRequest::getInt ('Itemid')), */
 							'approve_url' => JURI::root () .'plugins/vmpayment/'.$this->_currentMethod->payment_element.'/result.php?id='.$order['details']['BT']->order_number,
 							'cancel_url' => JURI::root () .'plugins/vmpayment/'.$this->_currentMethod->payment_element.'/result.php?id='.$order['details']['BT']->order_number,
 							'decline_url' => JURI::root () .'plugins/vmpayment/'.$this->_currentMethod->payment_element.'/result.php?id='.$order['details']['BT']->order_number,
@@ -228,13 +207,13 @@ class plgVmPaymentubrir extends vmPSPlugin {
 	function plgVmOnPaymentResponseReceived (&$html) {
 
 		if (!class_exists('VirtueMartCart')) {
-			require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
+			require(VMPATH_SITE .DIRECTORY_SEPARATOR. 'helpers' .DIRECTORY_SEPARATOR. 'cart.php');
 		}
 		if (!class_exists('shopFunctionsF')) {
-			require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+			require(VMPATH_SITE .DIRECTORY_SEPARATOR. 'helpers' .DIRECTORY_SEPARATOR. 'shopfunctionsf.php');
 		}
 		if (!class_exists('VirtueMartModelOrders')) {
-			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
+			require(VMPATH_ADMIN .DIRECTORY_SEPARATOR. 'models' .DIRECTORY_SEPARATOR. 'orders.php');
 		}
 
 		// the payment itself should send the parameter needed.
@@ -295,7 +274,7 @@ class plgVmPaymentubrir extends vmPSPlugin {
 	 */
 	function plgVmOnPaymentNotification () {
 	
-	switch ($_GET['result']) {
+	switch ($result) {
 				case '0':
 					echo '<div class="ubr_f">Оплата не совершена</div>';                                                                                          //эти два пункта по Юнителлеру
 					break;		
@@ -309,25 +288,24 @@ class plgVmPaymentubrir extends vmPSPlugin {
 					break;
 					
 				case '4':
-					echo '<div class="ubr_f">Оплата отменена банком. Причина - '.$_GET['desc'].'</div>';
+					echo '<div class="ubr_f">Оплата отменена банком. Причина - '.$desc.'</div>';
 					break;
 					
 				case '2':
 					$db =& JFactory::getDBO();
-					$sql = "SELECT * FROM ".$this->_tablename." WHERE virtuemart_order_id = '".htmlspecialchars(stripslashes($_GET['on']))."'";
+					$sql = "SELECT * FROM ".$this->_tablename." WHERE virtuemart_order_id = '".htmlspecialchars(stripslashes($on))."'";
 					$db->setQuery($sql);
 					$current = $db->loadObjectList();
-					//var_dump($current); die;
 					if(empty($current)) exit('error_1101'); 
 					
 					$modelOrder = VmModel::getModel ('orders');
-					$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber(stripslashes($_GET['on']));
+					$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber(stripslashes($on));
 					$order = $modelOrder->getOrder($virtuemart_order_id);
 					
 					$method = $this->getVmPluginMethod ($order['details']['BT']->virtuemart_paymentmethod_id);
 					$bankHandler = new Ubrir(array(																											 // инициализируем объект операции в TWPG
 							'shopId' => $method->twpg_id, 
-							'order_id' => $_GET['on'], 
+							'order_id' => $on, 
 							'sert' => $method->twpg_sert,
 						    'twpg_order_id' => $current[0]->order_number, 
 						    'twpg_session_id' => $current[0]->session_id
@@ -343,7 +321,7 @@ class plgVmPaymentubrir extends vmPSPlugin {
 				
 				case '5':
 					$modelOrder = VmModel::getModel ('orders');
-					$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber(stripslashes($_GET['on']));
+					$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber(stripslashes($on));
 					$order = $modelOrder->getOrder($virtuemart_order_id);
 					$order['order_status'] = 'C';
 				    $modelOrder->updateStatusForOneOrder($virtuemart_order_id, $order, TRUE);
@@ -428,11 +406,11 @@ class plgVmPaymentubrir extends vmPSPlugin {
 	function _getPaymentResponseHtml ($method, $order, $payments) {
 		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
 		if (!class_exists('CurrencyDisplay')) {
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
+			require(VMPATH_ADMIN .DIRECTORY_SEPARATOR. 'helpers' .DIRECTORY_SEPARATOR. 'currencydisplay.php');
 		}
 
 		if (!class_exists('VirtueMartCart')) {
-			require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
+			require(VMPATH_SITE .DIRECTORY_SEPARATOR. 'helpers' .DIRECTORY_SEPARATOR. 'cart.php');
 		}
 
 		VmConfig::loadJLang('com_virtuemart_orders',TRUE);
@@ -474,32 +452,6 @@ class plgVmPaymentubrir extends vmPSPlugin {
 		return $html;
 	}
 
-	/**
-	 * @param VirtueMartCart $cart
-	 * @param                $method
-	 * @param                $cart_prices
-	 * @return int
-	 */
-/*	function getCosts (VirtueMartCart $cart, $method, $cart_prices) {
-
-		if (preg_match('/%$/', $method->cost_percent_total)) {
-			$cost_percent_total = substr($method->cost_percent_total, 0, -1);
-		} else {
-			$cost_percent_total = $method->cost_percent_total;
-		}
-		return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
-	}*/
-
-	/**
-	 * Check if the payment conditions are fulfilled for this payment method
-	 *
-	 * @author: Valerie Isaksen
-	 *
-	 * @param $cart_prices: cart prices
-	 * @param $payment
-	 * @return true: if the conditions are fulfilled, false otherwise
-	 *
-	 */
 	protected function checkConditions ($cart, $method, $cart_prices) {
 
 		$this->convert_condition_amount($method);
@@ -536,51 +488,17 @@ class plgVmPaymentubrir extends vmPSPlugin {
 		return FALSE;
 	}
 
-
-
-	/**
-	 * We must reimplement this triggers for joomla 1.7
-	 */
-
-	/**
-	 * Create the table for this plugin if it does not yet exist.
-	 * This functions checks if the called plugin is active one.
-	 * When yes it is calling the standard method to create the tables
-	 *
-	 * @author Valérie Isaksen
-	 *
-	 */
 	function plgVmOnStoreInstallPaymentPluginTable ($jplugin_id) {
 
 		return $this->onStoreInstallPluginTable($jplugin_id);
 	}
 
-	/**
-	 * This event is fired after the payment method has been selected. It can be used to store
-	 * additional payment info in the cart.
-	 *
-	 * @author Valérie isaksen
-	 *
-	 * @param VirtueMartCart $cart: the actual cart
-	 * @return null if the payment was not selected, true if the data is valid, error message if the data is not vlaid
-	 *
-	 */
 	public function plgVmOnSelectCheckPayment (VirtueMartCart $cart, &$msg) {
 
 		return $this->OnSelectCheck($cart);
 	}
 
-	/**
-	 * plgVmDisplayListFEPayment
-	 * This event is fired to display the pluginmethods in the cart (edit shipment/payment) for exampel
-	 *
-	 * @param object  $cart Cart object
-	 * @param integer $selected ID of the method selected
-	 * @return boolean True on success, false on failures, null when this plugin was not selected.
-	 * On errors, JError::raiseWarning (or JError::raiseError) must be used to set a message.
-	 *
-	 * @author Valerie Isaksen
-	 */
+
 	public function plgVmDisplayListFEPayment (VirtueMartCart $cart, $selected = 0, &$htmlIn) {
 
 		if ($this->getPluginMethods($cart->vendorId) === 0) {
@@ -652,53 +570,18 @@ class plgVmPaymentubrir extends vmPSPlugin {
 
 		return $logoLink;
 	}
-	/*
-		 * plgVmonSelectedCalculatePricePayment
-		 * Calculate the price (value, tax_id) of the selected method
-		 * It is called by the calculator
-		 * This function does NOT to be reimplemented. If not reimplemented, then the default values from this function are taken.
-		 * @author Valerie Isaksen
-		 * @cart: VirtueMartCart the current cart
-		 * @cart_prices: array the new cart prices
-		 * @return null if the method was not selected, false if the payment is not valid any more, true otherwise
-		 *
-		 *
-		 */
 
-	/**
-	 * @param VirtueMartCart $cart
-	 * @param array          $cart_prices
-	 * @param                $cart_prices_name
-	 * @return bool|null
-	 */
 	public function plgVmOnSelectedCalculatePricePayment (VirtueMartCart $cart, array &$cart_prices, &$cart_prices_name) {
 
 		return $this->onSelectedCalculatePrice($cart, $cart_prices, $cart_prices_name);
 	}
 
-	/**
-	 * plgVmOnCheckAutomaticSelectedPayment
-	 * Checks how many plugins are available. If only one, the user will not have the choice. Enter edit_xxx page
-	 * The plugin must check first if it is the correct type
-	 *
-	 * @author Valerie Isaksen
-	 * @param VirtueMartCart cart: the cart object
-	 * @return null if no plugin was found, 0 if more then one plugin was found,  virtuemart_xxx_id if only one plugin is found
-	 *
-	 */
+
 	function plgVmOnCheckAutomaticSelectedPayment (VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
 
 		return $this->onCheckAutomaticSelected($cart, $cart_prices, $paymentCounter);
 	}
 
-	/**
-	 * This method is fired when showing the order details in the frontend.
-	 * It displays the method-specific data.
-	 *
-	 * @param integer $order_id The order ID
-	 * @return mixed Null for methods that aren't active, text (HTML) otherwise
-	 * @author Valerie Isaksen
-	 */
 	public function plgVmOnShowOrderFEPayment ($virtuemart_order_id, $virtuemart_paymentmethod_id, &$payment_name) {
 
 
@@ -714,90 +597,15 @@ class plgVmPaymentubrir extends vmPSPlugin {
 		                                                  ));
 	}
 
-	/**
-	 * This event is fired during the checkout process. It can be used to validate the
-	 * method data as entered by the user.
-	 *
-	 * @return boolean True when the data was valid, false otherwise. If the plugin is not activated, it should return null.
-
-	public function plgVmOnCheckoutCheckDataPayment($psType, VirtueMartCart $cart) {
-	return null;
-	}
-	 */
-
-	/**
-	 * This method is fired when showing when printing an Order
-	 * It displays the the payment method-specific data.
-	 *
-	 * @param integer $order_number The order number
-	 * @param integer $method_id  method used for this order
-	 * @return mixed Null when for payment methods that were not selected, text (HTML) otherwise
-	 * @author Valerie Isaksen
-	 */
 	function plgVmonShowOrderPrintPayment ($order_number, $method_id) {
 
 		return $this->onShowOrderPrint($order_number, $method_id);
 	}
 
-	/**
-	 * Save updated order data to the method specific table
-	 *
-	 * @param array $_formData Form data
-	 * @return mixed, True on success, false on failures (the rest of the save-process will be
-	 * skipped!), or null when this method is not actived.
-
-	public function plgVmOnUpdateOrderPayment(  $_formData) {
-	return null;
-	}
-	 */
-	/**
-	 * Save updated orderline data to the method specific table
-	 *
-	 * @param array $_formData Form data
-	 * @return mixed, True on success, false on failures (the rest of the save-process will be
-	 * skipped!), or null when this method is not actived.
-
-	public function plgVmOnUpdateOrderLine(  $_formData) {
-	return null;
-	}
-	 */
-	/**
-	 * plgVmOnEditOrderLineBE
-	 * This method is fired when editing the order line details in the backend.
-	 * It can be used to add line specific package codes
-	 *
-	 * @param integer $_orderId The order ID
-	 * @param integer $_lineId
-	 * @return mixed Null for method that aren't active, text (HTML) otherwise
-
-	public function plgVmOnEditOrderLineBE(  $_orderId, $_lineId) {
-	return null;
-	}
-	 */
-
-	/**
-	 * This method is fired when showing the order details in the frontend, for every orderline.
-	 * It can be used to display line specific package codes, e.g. with a link to external tracking and
-	 * tracing systems
-	 *
-	 * @param integer $_orderId The order ID
-	 * @param integer $_lineId
-	 * @return mixed Null for method that aren't active, text (HTML) otherwise
-
-	public function plgVmOnShowOrderLineFE(  $_orderId, $_lineId) {
-	return null;
-	}
-	 */
 	function plgVmDeclarePluginParamsPaymentVM3( &$data) {
 		return $this->declarePluginParams('payment', $data);
 	}
 
-	/**
-	 * @param $name
-	 * @param $id
-	 * @param $table
-	 * @return bool
-	 */
 	function plgVmSetOnTablePluginParamsPayment ($name, $id, &$table) {
 
 		return $this->setOnTablePluginParams($name, $id, $table);
@@ -819,10 +627,9 @@ class plgVmPaymentubrir extends vmPSPlugin {
 
 	static function getSecurityKey () {
 		if (!class_exists('ubrirLib_ubrirueberweisungClassic')) {
-			require(VMPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'ubrir' . DS . 'ubrir' . DS . 'library' . DS . 'ubrirLib_ubrirueberweisung_classic.php');
+			require(VMPATH_ROOT .DIRECTORY_SEPARATOR. 'plugins' .DIRECTORY_SEPARATOR. 'vmpayment' .DIRECTORY_SEPARATOR. 'ubrir' .DIRECTORY_SEPARATOR. 'ubrir' .DIRECTORY_SEPARATOR. 'library' .DIRECTORY_SEPARATOR. 'ubrirLib_ubrirueberweisung_classic.php');
 		}
 		return ubrirLib_ubrirueberweisungClassic::generatePassword();
 	}
 }
 
-// No closing tag

@@ -1,4 +1,10 @@
 <?php
+/**
+ * @package	VM payment module for Joomla!
+ * @version	1.0.0
+ * @author	itmosfera.ru
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 					$bankHandler = new Ubrir(array(																											 // инициализируем объект операции в TWPG
 							'shopId' => CSalePaySystemAction::GetParamValue("ID"), 
 							'order_id' => CSalePaySystemAction::GetParamValue("ORDER_ID"), 

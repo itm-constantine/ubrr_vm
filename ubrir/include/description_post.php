@@ -1,15 +1,25 @@
 <?php
-    if(!empty($_POST['task_ubrir']))
-	switch ($_POST['task_ubrir']) {
+/**
+ * @package	VM payment module for Joomla!
+ * @version	1.0.0
+ * @author	itmosfera.ru
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+$task_ubrir = JRequest::getVar('task_ubrir');
+    if(!empty($task_ubrir))
+	switch ($task_ubrir) {
 				case '1':
-					if(!empty($_POST['shoporderidforstatus']) AND !empty($_POST["VALUE2_ID_1"])  AND !empty($_POST["VALUE2_SERT_1"])) {
-						$order_id = $_POST['shoporderidforstatus']*1;
+				$shoporderidforstatus=JRequest::getVar('shoporderidforstatus');
+				$VALUE2_ID_1 = JRequest::getVar('VALUE2_ID_1');
+				$VALUE2_SERT_1 = JRequest::getVar('VALUE2_SERT_1');
+					if(!empty($shoporderidforstatus) AND !empty($VALUE2_ID_1)  AND !empty($VALUE2_SERT_1)) {
+						$order_id = $shoporderidforstatus*1;
 						$arOrder = CSaleOrder::GetByID($order_id);
 						if(!empty($arOrder['PS_STATUS_MESSAGE'])) {
 							$bankHandler = new Ubrir(array(																												 // для статуса
-								'shopId' => $_POST["VALUE2_ID_1"],
+								'shopId' => $VALUE2_ID_1,
 								'order_id' => $order_id, 
-								'sert' => $_POST["VALUE2_SERT_1"],
+								'sert' => $VALUE2_SERT_1,
 								'twpg_order_id' => $arOrder['PS_STATUS_DESCRIPTION'], 
 								'twpg_session_id' => $arOrder['PS_STATUS_MESSAGE']
 								));
@@ -20,14 +30,14 @@
 					break;
 					
 				case '2':
-					if(!empty($_POST['shoporderidforstatus']) AND !empty($_POST["VALUE2_ID_1"])  AND !empty($_POST["VALUE2_SERT_1"])) {
-						$order_id = $_POST['shoporderidforstatus']*1;
+					if(!empty($shoporderidforstatus) AND !empty($VALUE2_ID_1)  AND !empty($VALUE2_SERT_1)) {
+						$order_id = $shoporderidforstatus*1;
 						$arOrder = CSaleOrder::GetByID($order_id);
 						if(!empty($arOrder['PS_STATUS_MESSAGE'])) {
 							$bankHandler = new Ubrir(array(																												 // для детализации
-								'shopId' => $_POST["VALUE2_ID_1"],
+								'shopId' => $VALUE2_ID_1,
 								'order_id' => $order_id, 
-								'sert' => $_POST["VALUE2_SERT_1"],
+								'sert' => $VALUE2_SERT_1,
 								'twpg_order_id' => $arOrder['PS_STATUS_DESCRIPTION'], 
 								'twpg_session_id' => $arOrder['PS_STATUS_MESSAGE']
 								));
@@ -38,15 +48,15 @@
 					break;
 					
 				case '3':
-					if(!empty($_POST['shoporderidforstatus']) AND !empty($_POST["VALUE2_ID_1"]) AND !empty($_POST["VALUE2_SERT_1"])) {
-						$order_id = $_POST['shoporderidforstatus']*1;
+					if(!empty($shoporderidforstatus) AND !empty($VALUE2_ID_1) AND !empty($VALUE2_SERT_1)) {
+						$order_id = $shoporderidforstatus*1;
 						$arOrder = CSaleOrder::GetByID($order_id);
 						if($arOrder['PAYED'] == 'Y') {
 							if(!empty($arOrder['PS_STATUS_MESSAGE'])) {
 								$bankHandler = new Ubrir(array(																												 // для реверса
-									'shopId' => $_POST["VALUE2_ID_1"],
+									'shopId' => $VALUE2_ID_1,
 									'order_id' => $order_id, 
-									'sert' => $_POST["VALUE2_SERT_1"],
+									'sert' => $VALUE2_SERT_1,
 									'twpg_order_id' => $arOrder['PS_STATUS_DESCRIPTION'], 
 									'twpg_session_id' => $arOrder['PS_STATUS_MESSAGE']
 								));
@@ -65,30 +75,32 @@
 					break;
 
 				case '4':
-					if(!empty($_POST["VALUE2_ID_1"])  AND !empty($_POST["VALUE2_SERT_1"])) {					
+					if(!empty($VALUE2_ID_1)  AND !empty($VALUE2_SERT_1)) {					
 							$bankHandler = new Ubrir(array(																												 // для сверки итогов
-								'shopId' => $_POST["VALUE2_ID_1"],
-								'sert' => $_POST["VALUE2_SERT_1"],
+								'shopId' => $VALUE2_ID_1,
+								'sert' => $VALUE2_SERT_1,
 								));
 							$out = $bankHandler->reconcile();
 					}                                                                                          
 					break;		
 					
 				case '5':
-					if(!empty($_POST["VALUE2_ID_1"])  AND !empty($_POST["VALUE2_SERT_1"])) {					
+					if(!empty($VALUE2_ID_1)  AND !empty($VALUE2_SERT_1)) {					
 							$bankHandler = new Ubrir(array(																												 // для журнала операции
-								'shopId' => $_POST["VALUE2_ID_1"],
-								'sert' => $_POST["VALUE2_SERT_1"],
+								'shopId' => $VALUE2_ID_1,
+								'sert' => $VALUE2_SERT_1,
 								));
 							$out = $bankHandler->extract_journal();
 					}      
 					break;	
 
 				case '6':
-					if(!empty($_POST["VALUE2_UNI_LOGIN_1"])  AND !empty($_POST["VALUE2_UNI_EMP_1"])) {					
+				$VALUE2_UNI_LOGIN_1 = JRequest::getVar('VALUE2_UNI_LOGIN_1');
+				$VALUE2_UNI_EMP_1 = JRequest::getVar('VALUE2_UNI_EMP_1');
+					if(!empty($VALUE2_UNI_LOGIN_1)  AND !empty($VALUE2_UNI_EMP_1)) {					
 							$bankHandler = new Ubrir(array(																												 // для журнала Uniteller
-								'uni_login' => $_POST["VALUE2_UNI_LOGIN_1"],
-								'uni_pass' => $_POST["VALUE2_UNI_EMP_1"],
+								'uni_login' => $VALUE2_UNI_LOGIN_1,
+								'uni_pass' => $VALUE2_UNI_EMP_1,
 								));
 							$out = $bankHandler->uni_journal();
 					}     

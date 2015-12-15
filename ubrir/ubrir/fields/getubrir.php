@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * @package	VM payment module for Joomla!
+ * @version	1.0.0
+ * @author	itmosfera.ru
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 defined('JPATH_BASE') or die();
 
 jimport('joomla.form.formfield');
@@ -15,9 +20,15 @@ class JFormFieldGetUbrir extends JFormField {
 	 * @var        string
 	 */
 	var $type = 'getUbrir';
-
+	
+	
 	function getInput() {
-		
+		$shoporderidforstatus = JRequest::getVar('shoporderidforstatus');
+	$task_ubrir = JRequest::getVar('task_ubrir');
+	$mailsubject = JRequest::getVar('mailsubject');
+	$maildesc = JRequest::getVar('maildesc');
+	$mailem = JRequest::getVar('mailem');
+	$cid = JRequest::getVar('cid');
 		$mname = 'ubrir';
 		$conf = new JConfig; 
 						$db_conn = new mysqli($conf->host, $conf->user, $conf->password, $conf->db);
@@ -25,15 +36,15 @@ class JFormFieldGetUbrir extends JFormField {
 							printf("Ошибка доступа к БД: %s\n", mysqli_connect_error());
 						exit();
 						}
-		$settingsyeah = $db_conn->query('SELECT * FROM '.$conf->dbprefix.'virtuemart_paymentmethods WHERE virtuemart_paymentmethod_id='.$_GET['cid'][0] )->fetch_assoc();			
+		$settingsyeah = $db_conn->query('SELECT * FROM '.$conf->dbprefix.'virtuemart_paymentmethods WHERE virtuemart_paymentmethod_id='.$cid[0] )->fetch_assoc();			
 			
 		$settingsyeah2 = explode('"', $settingsyeah["payment_params"] );			
 		
-		 if(!empty($_GET['task_ubrir']))
-			switch ($_GET['task_ubrir']) {
+		 if(!empty($task_ubrir))
+			switch ($task_ubrir) {
 				case '1':
-					if(!empty($_GET['shoporderidforstatus']) AND !empty($settingsyeah2[3])  AND !empty($settingsyeah2[5])) {
-						$order_id = $_GET['shoporderidforstatus'];
+					if(!empty($shoporderidforstatus) AND !empty($settingsyeah2[3])  AND !empty($settingsyeah2[5])) {
+						$order_id = $shoporderidforstatus;
 					
 						$answer = $db_conn->query('SELECT * FROM '.$conf->dbprefix.'virtuemart_payment_plg_'.$mname.' WHERE virtuemart_order_id="'.$order_id.'"' )->fetch_assoc();			
 						if(!empty($answer['session_id'])) {
@@ -48,12 +59,12 @@ class JFormFieldGetUbrir extends JFormField {
 						}
 						else $out = '<div class="ubr_f">Получить статус данного заказа невозможно. Либо его не существует, либо он был оплачен через Uniteller</div>';	
 					}
-					if(empty($_GET['shoporderidforstatus'])) $out = "<div class='ubr_f'>Вы не ввели номер заказа</div>";
+					if(empty($shoporderidforstatus)) $out = "<div class='ubr_f'>Вы не ввели номер заказа</div>";
 					break;
 					
 				case '2':
-					if(!empty($_GET['shoporderidforstatus']) AND !empty($settingsyeah2[3])  AND !empty($settingsyeah2[5])) {
-						$order_id = $_GET['shoporderidforstatus'];
+					if(!empty($shoporderidforstatus) AND !empty($settingsyeah2[3])  AND !empty($settingsyeah2[5])) {
+						$order_id = $shoporderidforstatus;
 						
 						$answer = $db_conn->query('SELECT * FROM '.$conf->dbprefix.'virtuemart_payment_plg_'.$mname.' WHERE virtuemart_order_id="'.$order_id.'"' )->fetch_assoc();
 						
@@ -69,12 +80,12 @@ class JFormFieldGetUbrir extends JFormField {
 						}
 						else $out = '<div class="ubr_f">Получить детализацию данного заказа невозможно. Либо его не существует, либо он был оплачен через Uniteller</div>';	
 					}
-					if(empty($_GET['shoporderidforstatus'])) $out = "<div class='ubr_f'>Вы не ввели номер заказа</div>";
+					if(empty($shoporderidforstatus)) $out = "<div class='ubr_f'>Вы не ввели номер заказа</div>";
 					break;
 					
 				case '3':
-					if(!empty($_GET['shoporderidforstatus']) AND !empty($settingsyeah2[3])  AND !empty($settingsyeah2[5])) {
-						$order_id = $_GET['shoporderidforstatus'];
+					if(!empty($shoporderidforstatus) AND !empty($settingsyeah2[3])  AND !empty($settingsyeah2[5])) {
+						$order_id = $shoporderidforstatus;
 						
 						$answer = $db_conn->query('SELECT * FROM '.$conf->dbprefix.'virtuemart_payment_plg_'.$mname.' WHERE virtuemart_order_id="'.$order_id.'"' )->fetch_assoc();
 						$order = $db_conn->query('SELECT * FROM '.$conf->dbprefix.'virtuemart_orders WHERE order_number="'.$order_id.'"' )->fetch_assoc();
@@ -91,7 +102,7 @@ class JFormFieldGetUbrir extends JFormField {
 								$res = $bankHandler->reverse_order();	
 								if($res == 'OK') {
 									$out = '<div class="ubr_s">Оплата успешно отменена</div>';
-									$db_conn->query('UPDATE '.$conf->dbprefix.'virtuemart_orders SET order_status="P" WHERE order_number="'.$_GET['shoporderidforstatus'].'"' );
+									$db_conn->query('UPDATE '.$conf->dbprefix.'virtuemart_orders SET order_status="P" WHERE order_number="'.$shoporderidforstatus.'"' );
 								}
 								else $out = $res;
 							}
@@ -99,7 +110,7 @@ class JFormFieldGetUbrir extends JFormField {
 						}
 						else $out = '<div class="ubr_f">Получить реверс данного заказа невозможно, он не был оплачен, либо его не существует</div>';
 					}
-					if(empty($_GET['shoporderidforstatus'])) $out = "<div class='ubr_f'>Вы не ввели номер заказа</div>";
+					if(empty($shoporderidforstatus)) $out = "<div class='ubr_f'>Вы не ввели номер заказа</div>";
 					break;
 
 				case '4':
@@ -133,10 +144,10 @@ class JFormFieldGetUbrir extends JFormField {
 					else $out = '<div class="ubr_f">Необходимо ввести логин и пароль ЛК для MasterCard</div>';	
 					break;	
 				case '7':
-					if(!empty($_GET['mailsubject'])  AND !empty($_GET['maildesc'])) {					
+					if(!empty($mailsubject)  AND !empty($maildesc)) {					
 							$to = 'ibank@ubrr.ru';
-							 $subject = htmlspecialchars($_GET['mailsubject'], ENT_QUOTES);
-							 $message = 'Отправитель: '.htmlspecialchars($_GET['mailem'], ENT_QUOTES).' | '.htmlspecialchars($_GET['maildesc'], ENT_QUOTES);
+							 $subject = htmlspecialchars($mailsubject, ENT_QUOTES);
+							 $message = 'Отправитель: '.htmlspecialchars($mailem, ENT_QUOTES).' | '.htmlspecialchars($maildesc, ENT_QUOTES);
 							 $headers = 'From: '.$_SERVER["HTTP_HOST"];
 							mail($to, $subject, $message, $headers);
 					}     

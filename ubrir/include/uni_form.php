@@ -1,5 +1,10 @@
 <?php
-					
+/**
+ * @package	VM payment module for Joomla!
+ * @version	1.0.0
+ * @author	itmosfera.ru
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */			
 	  $callbackurl = JURI::root () .'plugins/vmpayment/'.$this->_currentMethod->payment_element.'/result.php?id='.$order['details']['BT']->order_number;
 	  $sign = strtoupper(md5(md5($method->uni_id).'&'.md5($method->uni_login).'&'.md5($method->uni_pass).'&'.md5($order['details']['BT']->order_number).'&'.md5($twpg_amount)));
 	  echo '<form action="https://91.208.121.201/estore_listener.php" name="uniteller" method="post">

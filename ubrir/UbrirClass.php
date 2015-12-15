@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * @package	VM payment module for Joomla!
+ * @version	1.0.0
+ * @author	itmosfera.ru
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 class Ubrir
 
 {
@@ -686,10 +691,7 @@ class Ubrir
 		// curl_setopt($ch, CURLOPT_STDERR, $stdout);
 		if( ! $answer = curl_exec($ch)) { 
 			echo "<div class='ubr_f'>Ошибка соединения с банком #".curl_errno($ch)."</div>"; 
-							} 
-							
-		var_dump(curl_getinfo($ch));
-			
+							} 			
 		return $answer;
 	  }
 
