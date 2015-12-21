@@ -18,10 +18,6 @@ class plgVmPaymentubrir extends vmPSPlugin {
 	const RELEASE = 'VM 3.0.9';
 	const SU_ubrirBANKING = 'su';
 
-	$result = JRequest::getVar('result');
-	$on = JRequest::getVar('on');
-	$desc = JRequest::getVar('desc');
-
 	function __construct (& $subject, $config) {
 
 		parent::__construct($subject, $config);
@@ -101,7 +97,10 @@ class plgVmPaymentubrir extends vmPSPlugin {
 
 
 	function sendTransactionRequest ( $cart, $order, $doRedirect = true) {
-		
+	
+		$result = JRequest::getVar('result');
+		$on = JRequest::getVar('on');
+		$desc = JRequest::getVar('desc');
 		$twpg_amount = round($order['details']['BT']->order_total, 2);
 		
 		
@@ -273,6 +272,10 @@ class plgVmPaymentubrir extends vmPSPlugin {
 	 * @return bool|null
 	 */
 	function plgVmOnPaymentNotification () {
+	
+	$result = JRequest::getVar('result');
+		$on = JRequest::getVar('on');
+		$desc = JRequest::getVar('desc');
 	
 	switch ($result) {
 				case '0':

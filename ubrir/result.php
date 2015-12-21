@@ -10,10 +10,10 @@
 		$url = "http://".$_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"];
 		$root = substr($url, 0, strpos($url, '/plugins' ));
 		$index = $root.'/index.php';
-		$xmlmsg = JRequest::getVar('xmlmsg');
-		$id = JRequest::getVar('id');
-		$ORDER_IDP = JRequest::getVar('ORDER_IDP');
-		$status = JRequest::getVar('status');
+		if(!empty($_POST['xmlmsg'])) $xmlmsg = $_POST['xmlmsg'];
+		if(!empty($_GET['id'])) $id = $_GET['id'];
+		if(!empty($_GET['ORDER_IDP'])) $ORDER_IDP = $_GET['ORDER_IDP'];
+		if(!empty($_GET['status'])) $status = $_GET['status'];
 		if (isset($xmlmsg)) {
 	
 		if(stripos($url, "?")) $amp = "&"; else $amp = "?";

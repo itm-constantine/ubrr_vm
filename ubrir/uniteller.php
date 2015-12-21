@@ -7,10 +7,10 @@
  */
 require('../../../configuration.php');
 
-$SIGN = JRequest::getVar('SIGN');
-$STATE = JRequest::getVar('STATE');
-$ORDER_ID = JRequest::getVar('ORDER_ID');
-$SHOP_ID = JRequest::getVar('SHOP_ID');
+$SIGN = $_POST['SIGN'];
+$STATE = $_POST['STATE'];
+$ORDER_ID = $_POST['ORDER_ID'];
+$SHOP_ID = $_POST['SHOP_ID'];
 if (isset($SIGN)) {
 				$sign = strtoupper(md5(md5($SHOP_ID).'&'.md5($ORDER_ID).'&'.md5($STATE)));
 				if ($SIGN == $sign) {
