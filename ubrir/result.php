@@ -34,6 +34,7 @@
 		};
 		};
 		if(isset($ORDER_IDP)) {
+		    $status = $_GET['status'];
 			header("Location: ".$index."?option=com_virtuemart&view=pluginresponse&task=pluginnotification&result=".$status."&on=" . $id);
 		};
 		?>
